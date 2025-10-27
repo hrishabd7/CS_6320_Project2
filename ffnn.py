@@ -157,7 +157,7 @@ if __name__ == "__main__":
 
     # load data
     print("========== Loading data ==========")
-    train_data = load_data(args.train_data)
+    train_data = load_data(args.train_data)[:32]
     valid_data = load_data(args.val_data)
     # train_data, valid_data = load_data(args.train_data, args.val_data) # X_data is a list of pairs (document, y); y in {0,1,2,3,4}
     vocab = make_vocab(train_data)
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     print (f"Length of validation data is {len(valid_data)}")
 
     model = FFNN(input_dim = len(vocab), h = args.hidden_dim)
-    optimizer = optim.SGD(model.parameters(),lr=0.01, momentum=0.9)
+    optimizer = optim.SGD(model.parameters(),lr=0.001, momentum=0.9)
     print("========== Training for {} epochs ==========".format(args.epochs))
     train_losses = []
     validation_losses = []
@@ -264,6 +264,22 @@ if __name__ == "__main__":
             # torch.save(torch.load(ckpt_path), ckpt_dir / "best_model.pt")
 
 plot_training_curves(train_losses, validation_losses, train_accuracy, validation_accuracy, np.arange(args.epochs), save_dir=args.ckpt_dir)
+## addded all the metrics
+import csv
+metrics_path = f"{args.ckpt_dir}/metrics.csv"
+with open(metrics_path,"w") as f:
+    w = csv.writer(f, delimiter="\t")
+    w.writerow(["epoch", "train_loss", "train_acc(%)", "val_loss", "val_acc(%)"])
+    for i in range(len(train_losses)):
+        w.writerow([
+            i + 1,
+            f"{(train_losses[i]):.6f}",
+            f"{(train_accuracy[i]):.6f}",
+            f"{(validation_losses[i]):.6f}",
+            f"{(validation_accuracy[i]):.6f}",
+        ])
+
+
 
 #Loaded best model
 state_dict = torch.load(ckpt_path, map_location="cpu")
