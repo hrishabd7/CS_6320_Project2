@@ -148,6 +148,10 @@ if __name__ == "__main__":
     parser.add_argument("--test_data", default = "test.json", help = "path to test data")
     parser.add_argument('--do_train', action='store_true')
     parser.add_argument('--ckpt_dir', type=str, default='runs/exp1', help="path to save checkpoint directory")
+    parser.add_argument("--optimizer", type=str, default="sgd",
+                        choices=["sgd", "adam", "adamw", "rmsprop", "adagrad"])
+    parser.add_argument("--activation", type=str, default="relu",
+                        choices=["relu", "leakyrelu", "tanh", "sigmoid", "elu", "gelu"])
     
     args = parser.parse_args()
     os.makedirs(args.ckpt_dir, exist_ok=True)
@@ -172,7 +176,37 @@ if __name__ == "__main__":
     print (f"Length of validation data is {len(valid_data)}")
 
     model = FFNN(input_dim = len(vocab), h = args.hidden_dim)
-    optimizer = optim.SGD(model.parameters(),lr=0.001, momentum=0.9)
+
+    # choose activation
+    if args.activation == "relu":
+        model.activation = nn.ReLU()
+    elif args.activation == "leakyrelu":
+        model.activation = nn.LeakyReLU()
+    elif args.activation == "tanh":
+        model.activation = nn.Tanh()
+    elif args.activation == "sigmoid":
+        model.activation = nn.Sigmoid()
+    elif args.activation == "elu":
+        model.activation = nn.ELU()
+    elif args.activation == "gelu":
+        model.activation = nn.GELU()
+    else:
+        raise ValueError(f"Unknown activation: {args.activation}")
+
+    # choose optimizer
+    if args.optimizer == "sgd":
+        optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    elif args.optimizer == "adam":
+        optimizer = optim.Adam(model.parameters(), lr=0.001)
+    elif args.optimizer == "adamw":
+        optimizer = optim.AdamW(model.parameters(), lr=0.001)
+    elif args.optimizer == "rmsprop":
+        optimizer = optim.RMSprop(model.parameters(), lr=0.001)
+    elif args.optimizer == "adagrad":
+        optimizer = optim.Adagrad(model.parameters(), lr=0.001)
+    else:
+        raise ValueError(f"Unknown optimizer: {args.optimizer}")
+
     print("========== Training for {} epochs ==========".format(args.epochs))
     train_losses = []
     validation_losses = []
