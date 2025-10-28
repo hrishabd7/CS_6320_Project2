@@ -161,7 +161,7 @@ if __name__ == "__main__":
 
     # load data
     print("========== Loading data ==========")
-    train_data = load_data(args.train_data)[:32]
+    train_data = load_data(args.train_data)
     valid_data = load_data(args.val_data)
     # train_data, valid_data = load_data(args.train_data, args.val_data) # X_data is a list of pairs (document, y); y in {0,1,2,3,4}
     vocab = make_vocab(train_data)
@@ -176,6 +176,22 @@ if __name__ == "__main__":
     print (f"Length of validation data is {len(valid_data)}")
 
     model = FFNN(input_dim = len(vocab), h = args.hidden_dim)
+
+    # choose activation
+    if args.activation == "relu":
+        model.activation = nn.ReLU()
+    elif args.activation == "leakyrelu":
+        model.activation = nn.LeakyReLU()
+    elif args.activation == "tanh":
+        model.activation = nn.Tanh()
+    elif args.activation == "sigmoid":
+        model.activation = nn.Sigmoid()
+    elif args.activation == "elu":
+        model.activation = nn.ELU()
+    elif args.activation == "gelu":
+        model.activation = nn.GELU()
+    else:
+        raise ValueError(f"Unknown activation: {args.activation}")
 
     # choose optimizer
     if args.optimizer == "sgd":
