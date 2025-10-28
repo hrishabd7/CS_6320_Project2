@@ -157,7 +157,7 @@ if __name__ == "__main__":
 
     # load data
     print("========== Loading data ==========")
-    train_data = load_data(args.train_data)[:32]
+    train_data = load_data(args.train_data)
     valid_data = load_data(args.val_data)
     # train_data, valid_data = load_data(args.train_data, args.val_data) # X_data is a list of pairs (document, y); y in {0,1,2,3,4}
     vocab = make_vocab(train_data)
