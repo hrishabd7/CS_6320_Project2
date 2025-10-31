@@ -13,6 +13,8 @@ from argparse import ArgumentParser
 
 
 unk = '<UNK>'
+
+minibatch_size = 32
 # Consult the PyTorch documentation for information on the functions used below:
 # https://pytorch.org/docs/stable/torch.html
 class FFNN(nn.Module):
@@ -225,7 +227,6 @@ if __name__ == "__main__":
         start_time = time.time()
         print("Training started for epoch {}".format(epoch + 1))
         random.shuffle(train_data) # Good practice to shuffle order of training data
-        minibatch_size = 16 
         N = len(train_data) 
         for minibatch_index in tqdm(range(N // minibatch_size)):
             optimizer.zero_grad()
@@ -260,7 +261,6 @@ if __name__ == "__main__":
         total_loss = 0
         start_time = time.time()
         print("Validation started for epoch {}".format(epoch + 1))
-        minibatch_size = 16 
         N = len(valid_data) 
         for minibatch_index in tqdm(range(N // minibatch_size)):
             optimizer.zero_grad()
@@ -331,8 +331,7 @@ correct = 0
 total = 0
 total_loss = 0
 start_time = time.time()
-print("Testing started")
-minibatch_size = 16 
+print("Testing started") 
 N = len(test_data) 
 for minibatch_index in tqdm(range(N // minibatch_size)):
     optimizer.zero_grad()
