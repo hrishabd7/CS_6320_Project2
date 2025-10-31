@@ -16,28 +16,41 @@ unk = '<UNK>'
 # Consult the PyTorch documentation for information on the functions used below:
 # https://pytorch.org/docs/stable/torch.html
 class FFNN(nn.Module):
-    def __init__(self, input_dim, h):
+    def __init__(self, input_dim, h, num_layers=1):
         super(FFNN, self).__init__()
         self.h = h
-        self.W1 = nn.Linear(input_dim, h)
-        self.activation = nn.ReLU() # The rectified linear unit; one valid choice of activation function
+        self.num_layers = max(1, int(num_layers))
         self.output_dim = 5
+
+        # Build hidden layers
+        self.hidden_layers = nn.ModuleList()
+        in_features = input_dim
+        # first hidden layer
+        self.hidden_layers.append(nn.Linear(in_features, h))
+        # additional hidden layers (h -> h)
+        for _ in range(1, self.num_layers):
+            self.hidden_layers.append(nn.Linear(h, h))
+
+        # Output layer
         self.W2 = nn.Linear(h, self.output_dim)
 
-        self.softmax = nn.LogSoftmax() # The softmax function that converts vectors into probability distributions; computes log probabilities for computational benefits
+        self.activation = nn.ReLU() # The rectified linear unit; one valid choice of activation function
+        self.softmax = nn.LogSoftmax(dim=-1) # Specify dim to avoid deprecation warning; computes log probabilities for computational benefits
         self.loss = nn.NLLLoss() # The cross-entropy/negative log likelihood loss taught in class
 
     def compute_Loss(self, predicted_vector, gold_label):
         return self.loss(predicted_vector, gold_label)
 
     def forward(self, input_vector):
-        # [to fill] obtain first hidden layer representation
+        # Pass through hidden layers with activation
+        x = input_vector
+        for layer in self.hidden_layers:
+            x = self.activation(layer(x))
 
-        intermediate_representation = self.activation(self.W1(input_vector))
-        # [to fill] obtain output layer representation
-        output_representation = self.W2(intermediate_representation)
-        
-        # [to fill] obtain probability dist.
+        # Obtain output layer representation
+        output_representation = self.W2(x)
+
+        # Obtain probability dist.
         predicted_vector = self.softmax(output_representation)
         return predicted_vector
 
@@ -67,7 +80,6 @@ def make_indices(vocab):
     vocab.add(unk)
     return vocab, word2index, index2word 
 
-
 # Returns:
 # vectorized_data = A list of pairs (vector representation of input, y)
 def convert_to_vector_representation(data, word2index):
@@ -79,7 +91,6 @@ def convert_to_vector_representation(data, word2index):
             vector[index] += 1
         vectorized_data.append((vector, y))
     return vectorized_data
-
 
 #rectified version
 def load_data(train_data):
@@ -142,6 +153,7 @@ def plot_training_curves(train_loss, val_loss, train_acc, val_acc, epochs, save_
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("-hd", "--hidden_dim", type=int, required = True, help = "hidden_dim")
+    parser.add_argument("-nl", "--num_layers", type=int, default=1, help = "number of hidden layers")
     parser.add_argument("-e", "--epochs", type=int, required = True, help = "num of epochs to train")
     parser.add_argument("--train_data", required = True, help = "path to training data")
     parser.add_argument("--val_data", required = True, help = "path to validation data")
@@ -175,7 +187,7 @@ if __name__ == "__main__":
     print (f"Length of train data is {len(train_data)}")
     print (f"Length of validation data is {len(valid_data)}")
 
-    model = FFNN(input_dim = len(vocab), h = args.hidden_dim)
+    model = FFNN(input_dim = len(vocab), h = args.hidden_dim, num_layers=args.num_layers)
 
     # choose activation
     if args.activation == "relu":
@@ -195,15 +207,15 @@ if __name__ == "__main__":
 
     # choose optimizer
     if args.optimizer == "sgd":
-        optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+        optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
     elif args.optimizer == "adam":
-        optimizer = optim.Adam(model.parameters(), lr=0.001)
+        optimizer = optim.Adam(model.parameters(), lr=0.01)
     elif args.optimizer == "adamw":
-        optimizer = optim.AdamW(model.parameters(), lr=0.001)
+        optimizer = optim.AdamW(model.parameters(), lr=0.01)
     elif args.optimizer == "rmsprop":
-        optimizer = optim.RMSprop(model.parameters(), lr=0.001)
+        optimizer = optim.RMSprop(model.parameters(), lr=0.01)
     elif args.optimizer == "adagrad":
-        optimizer = optim.Adagrad(model.parameters(), lr=0.001)
+        optimizer = optim.Adagrad(model.parameters(), lr=0.01)
     else:
         raise ValueError(f"Unknown optimizer: {args.optimizer}")
 
@@ -313,8 +325,6 @@ with open(metrics_path,"w") as f:
             f"{(validation_accuracy[i]):.6f}",
         ])
 
-
-
 #Loaded best model
 state_dict = torch.load(ckpt_path, map_location="cpu")
 model.load_state_dict(state_dict)
@@ -355,6 +365,3 @@ print("Test completed ")
 print("Test loss: {}".format(total_loss))
 print("Test accuracy: {}".format(correct / total))
 print("Test time: {}".format(time.time() - start_time))
-
-
-    
