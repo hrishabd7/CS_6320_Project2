@@ -10,6 +10,7 @@ import time
 from tqdm import tqdm
 import json
 from argparse import ArgumentParser
+import string
 
 unk = '<UNK>'
 minibatch_size = 32
@@ -44,12 +45,18 @@ class FFNN(nn.Module):
 
 # Returns: 
 # vocab = A set of strings corresponding to the vocabulary
+def normalize(tok):
+    tok = tok.translate(str.maketrans("", "", string.punctuation))
+    tok = tok.lower()
+    return tok
+ 
 def make_vocab(data):
+   
     vocab = set()
     for document, _ in data:
-        for word in document:
-            vocab.add(word)
-    return vocab 
+        for word in document:  
+            vocab.add(normalize(word))
+    return vocab
 
 
 # Returns:
@@ -195,15 +202,15 @@ if __name__ == "__main__":
 
     # choose optimizer
     if args.optimizer == "sgd":
-        optimizer = optim.SGD(model.parameters(), lr=0.000001, momentum=0.9)
+        optimizer = optim.SGD(model.parameters(), lr=1e-6, momentum=0.9)
     elif args.optimizer == "adam":
-        optimizer = optim.Adam(model.parameters(), lr=0.000001)
+        optimizer = optim.Adam(model.parameters(), lr=1e-6)
     elif args.optimizer == "adamw":
-        optimizer = optim.AdamW(model.parameters(), lr=0.000001)
+        optimizer = optim.AdamW(model.parameters(), lr=1e-6)
     elif args.optimizer == "rmsprop":
-        optimizer = optim.RMSprop(model.parameters(), lr=0.000001)
+        optimizer = optim.RMSprop(model.parameters(), lr=1e-6)
     elif args.optimizer == "adagrad":
-        optimizer = optim.Adagrad(model.parameters(), lr=0.000001)
+        optimizer = optim.Adagrad(model.parameters(), lr=1e-6)
     else:
         raise ValueError(f"Unknown optimizer: {args.optimizer}")
 
