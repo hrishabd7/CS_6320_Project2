@@ -11,9 +11,7 @@ from tqdm import tqdm
 import json
 from argparse import ArgumentParser
 
-
 unk = '<UNK>'
-
 minibatch_size = 32
 # Consult the PyTorch documentation for information on the functions used below:
 # https://pytorch.org/docs/stable/torch.html
@@ -197,15 +195,15 @@ if __name__ == "__main__":
 
     # choose optimizer
     if args.optimizer == "sgd":
-        optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+        optimizer = optim.SGD(model.parameters(), lr=0.000001, momentum=0.9)
     elif args.optimizer == "adam":
-        optimizer = optim.Adam(model.parameters(), lr=0.001)
+        optimizer = optim.Adam(model.parameters(), lr=0.000001)
     elif args.optimizer == "adamw":
-        optimizer = optim.AdamW(model.parameters(), lr=0.001)
+        optimizer = optim.AdamW(model.parameters(), lr=0.000001)
     elif args.optimizer == "rmsprop":
-        optimizer = optim.RMSprop(model.parameters(), lr=0.001)
+        optimizer = optim.RMSprop(model.parameters(), lr=0.000001)
     elif args.optimizer == "adagrad":
-        optimizer = optim.Adagrad(model.parameters(), lr=0.001)
+        optimizer = optim.Adagrad(model.parameters(), lr=0.000001)
     else:
         raise ValueError(f"Unknown optimizer: {args.optimizer}")
 
@@ -216,6 +214,8 @@ if __name__ == "__main__":
     validation_accuracy = []
     best_validation_accuracy = -1.0
     best_epoch = -1
+    val_not_best = 0
+
     for epoch in range(args.epochs):
         model.train()
         optimizer.zero_grad()
@@ -296,8 +296,21 @@ if __name__ == "__main__":
             ckpt_path = f"{args.ckpt_dir}/best_epoch{best_epoch}_acc{val_acc:.2f}.pt"
             torch.save(model.state_dict(),ckpt_path)
             # torch.save(torch.load(ckpt_path), ckpt_dir / "best_model.pt")
+            val_not_best = 0
+        else:
+            val_not_best+=1
+            if val_not_best==3:
+                break
+        
 
-plot_training_curves(train_losses, validation_losses, train_accuracy, validation_accuracy, np.arange(args.epochs), save_dir=args.ckpt_dir)
+        # if val_acc>best_validation_accuracy:
+        #     best_validation_accuracy = val_acc
+        #     best_epoch = epoch + 1
+        #     ckpt_path = f"{args.ckpt_dir}/best_epoch{best_epoch}_acc{val_acc:.2f}.pt"
+        #     torch.save(model.state_dict(),ckpt_path)
+        #     # torch.save(torch.load(ckpt_path), ckpt_dir / "best_model.pt")
+
+plot_training_curves(train_losses, validation_losses, train_accuracy, validation_accuracy, np.arange(len(validation_accuracy)), save_dir=args.ckpt_dir)
 ## addded all the metrics
 import csv
 metrics_path = f"{args.ckpt_dir}/metrics.csv"
@@ -312,7 +325,6 @@ with open(metrics_path,"w") as f:
             f"{(validation_losses[i]):.6f}",
             f"{(validation_accuracy[i]):.6f}",
         ])
-
 
 
 #Loaded best model
