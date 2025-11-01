@@ -11,6 +11,8 @@ from tqdm import tqdm
 import json
 from argparse import ArgumentParser
 import string
+import matplotlib.pyplot as plt
+import csv
 
 unk = '<UNK>'
 minibatch_size = 32
@@ -113,7 +115,6 @@ def load_data(train_data):
 
 #     return tra, val
 
-import matplotlib.pyplot as plt
 
 def plot_training_curves(train_loss, val_loss, train_acc, val_acc, epochs, save_dir=None):
     print (epochs)
@@ -319,7 +320,7 @@ if __name__ == "__main__":
 
 plot_training_curves(train_losses, validation_losses, train_accuracy, validation_accuracy, np.arange(len(validation_accuracy)), save_dir=args.ckpt_dir)
 ## addded all the metrics
-import csv
+
 metrics_path = f"{args.ckpt_dir}/metrics.csv"
 with open(metrics_path,"w") as f:
     w = csv.writer(f, delimiter="\t")
