@@ -24,17 +24,21 @@ class FFNN(nn.Module):
         self.num_layers = max(1, int(num_layers))
         self.output_dim = 5
 
-        # Build hidden layers
+        # Build hidden layers with halving hidden dimensions per layer.
+        # Example: h=512, num_layers=3 -> [512, 256, 128]
         self.hidden_layers = nn.ModuleList()
         in_features = input_dim
-        # first hidden layer
-        self.hidden_layers.append(nn.Linear(in_features, h))
-        # additional hidden layers (h -> h)
-        for _ in range(1, self.num_layers):
-            self.hidden_layers.append(nn.Linear(h, h))
 
-        # Output layer
-        self.W2 = nn.Linear(h, self.output_dim)
+        # Determine the hidden size for each layer (at least 1 unit per layer)
+        hidden_sizes = [max(1, h // (2 ** i)) for i in range(self.num_layers)]
+
+        # Construct hidden layers
+        for layer_size in hidden_sizes:
+            self.hidden_layers.append(nn.Linear(in_features, layer_size))
+            in_features = layer_size
+
+        # Output layer takes the last hidden size as input
+        self.W2 = nn.Linear(in_features, self.output_dim)
 
         self.activation = nn.ReLU() # The rectified linear unit; one valid choice of activation function
         self.softmax = nn.LogSoftmax(dim=-1) # Specify dim to avoid deprecation warning; computes log probabilities for computational benefits
@@ -209,15 +213,15 @@ if __name__ == "__main__":
 
     # choose optimizer
     if args.optimizer == "sgd":
-        optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+        optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
     elif args.optimizer == "adam":
-        optimizer = optim.Adam(model.parameters(), lr=0.01)
+        optimizer = optim.Adam(model.parameters(), lr=0.001)
     elif args.optimizer == "adamw":
-        optimizer = optim.AdamW(model.parameters(), lr=0.01)
+        optimizer = optim.AdamW(model.parameters(), lr=0.001)
     elif args.optimizer == "rmsprop":
-        optimizer = optim.RMSprop(model.parameters(), lr=0.01)
+        optimizer = optim.RMSprop(model.parameters(), lr=0.001)
     elif args.optimizer == "adagrad":
-        optimizer = optim.Adagrad(model.parameters(), lr=0.01)
+        optimizer = optim.Adagrad(model.parameters(), lr=0.001)
     else:
         raise ValueError(f"Unknown optimizer: {args.optimizer}")
 
