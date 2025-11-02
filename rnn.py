@@ -143,7 +143,7 @@ if __name__ == "__main__":
     stopping_condition = False
     epoch = 0
     best_validation_accuracy = 0
-
+    best_val_loss = 10
     last_train_accuracy = 0
     last_validation_accuracy = 0
     train_losses = []
