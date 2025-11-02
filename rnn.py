@@ -15,7 +15,7 @@ unk = '<UNK>'
 # Consult the PyTorch documentation for information on the functions used below:
 # https://pytorch.org/docs/stable/torch.html
 class RNN(nn.Module):
-    def __init__(self, input_dim, h,layers=1,activation='tanh',bidirectional=False):  # Add relevant parameters
+    def __init__(self, input_dim, h,layers=1,activation='tanh',bidirectional=False,last=False):  # Add relevant parameters
         super(RNN, self).__init__()
         self.h = h
         self.numOfLayer = layers
@@ -24,7 +24,7 @@ class RNN(nn.Module):
         
         self.softmax = nn.LogSoftmax(dim=1)
         self.loss = nn.NLLLoss()
-        self.sum = True
+        self.last = last
         self.directions = 2 if bidirectional else 1
         self.W = nn.Linear(self.directions*h, 5)
 
@@ -35,17 +35,14 @@ class RNN(nn.Module):
         # [to fill] obtain hidden layer representation (https://pytorch.org/docs/stable/generated/torch.nn.RNN.html) 
         rnn_outputs, hidden = self.rnn(inputs) #seq_length*bs*hid_dim
         # [to fill] obtain output layer representations
-        if self.sum:
+        if not self.last:
             final_output = self.W(rnn_outputs) #seq_length*bs*5
-            # [to fill] sum over output 
             sum_output = final_output.sum(dim=0) #bs*5
-            # [to fill] obtain probability dist.
             predicted_vector = self.softmax(sum_output)
         else:
             final_output = self.W(hidden).sum(dim=0)
-            # print (final_output.shape)
             predicted_vector = self.softmax(final_output)
-            # print (predicted_vector.shape)
+            
         return predicted_vector
 
 
@@ -108,6 +105,7 @@ if __name__ == "__main__":
     parser.add_argument('--activation', type=str, default='tanh', help="activation")
     parser.add_argument('--dropout', type=int, default=1, help="dropout")
     parser.add_argument('--bidirectional', action="store_true", help="whether to use bidirectional")
+    parser.add_argument('--last', action="store_true", help="whether to use bidirectional")
 
     args = parser.parse_args()
     
@@ -135,7 +133,7 @@ if __name__ == "__main__":
 
     print("========== Vectorizing data ==========")
     model = RNN(50, args.hidden_dim, args.layers,activation=args.activation,\
-                bidirectional=args.bidirectional).to(device)  
+                bidirectional=args.bidirectional,last=args.last).to(device)  
     # optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     word_embedding = pickle.load(open('./word_embedding.pkl', 'rb'))
