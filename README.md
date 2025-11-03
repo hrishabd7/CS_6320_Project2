@@ -29,11 +29,12 @@ RNN also expects `word_embedding.pkl` in the project root.
 
 ### FFNN
 Required args: `--hidden_dim`, `--epochs`, `--train_data`, `--val_data`
-Optional: `--test_data`, `--ckpt_dir`, `--optimizer`, `--activation`, `--do_train`
+Optional: `--test_data`, `--ckpt_dir`, `--optimizer`, `--activation`, `--do_train`, `--numlayers`
 
 Example:
 ```bash
 python ffnn.py -hd 128 -e 10 \
+  --num_layers 1 \
   --train_data training_new.json \
   --val_data validation_new.json \
   --test_data test.json \
@@ -54,19 +55,70 @@ Artifacts:
 
 ### RNN
 Required args: `--hidden_dim`, `--epochs`, `--train_data`, `--val_data`
-Optional: `--test_data`, `--ckpt_dir`, `--do_train`
+Optional: `--test_data`, `--ckpt_dir`, `--do_train`, `--num_layers`, `--lr`, `--minibatch_size`, `--activation {relu,tanh}`, `--bidirectional`, `--last`
 
 Example:
 ```bash
 python rnn.py -hd 128 -e 8 \
-  --train_data training.json \
-  --val_data validation.json \
+  --num_layers 1 \
+  --train_data training_new.json \
+  --val_data validation_new.json \
   --test_data test.json \
   --ckpt_dir runs/rnn_exp1 \
   --do_train
 ```
 
+Example with learning rate and minibatch size:
+```bash
+python rnn.py \
+  --hidden_dim 256 \
+  --epochs 40 \
+  --train_data data/training_new.json \
+  --val_data data/validation_new.json \
+  --test_data data/test.json \
+  --ckpt_dir runs/rnn1 \
+  --lr 0.00001 \
+  --minibatch_size 32
+```
+
+Optional parameters (if supported by your rnn.py):
+- `--activation {relu,tanh}`: activation function (default: `tanh`).
+- `--bidirectional`: enable a bidirectional RNN.
+- `--last`: use only the last hidden state for classification (no summing across all time steps).
+
 Note: Ensure `word_embedding.pkl` is present in the project root.
+
+### RNN with Word2Vec variant (optional)
+If you are using a Word2Vec-based RNN script (e.g., `rnn_word2vec.py`) that can optionally train embeddings, here are example commands:
+
+Train the embedding:
+```bash
+python rnn_word2vec.py \
+  --hidden_dim 256 \
+  --epochs 40 \
+  --train_data data/training_new.json \
+  --val_data data/validation_new.json \
+  --test_data data/test.json \
+  --ckpt_dir runs/word_embeddings/rnn2 \
+  --lr 0.00001 \
+  --minibatch_size 32 \
+  --word_embedding word2vec \
+  --train_embedding
+```
+
+Do not train the embedding (use pretrained as-is):
+```bash
+python rnn_word2vec.py \
+  --hidden_dim 256 \
+  --epochs 40 \
+  --train_data data/training_new.json \
+  --val_data data/validation_new.json \
+  --test_data data/test.json \
+  --ckpt_dir runs/word_embeddings/rnn3 \
+  --lr 0.00001 \
+  --minibatch_size 32 \
+  --word_embedding word2vec
+```
 
 
 ## Imports Used
