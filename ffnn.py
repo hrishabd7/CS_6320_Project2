@@ -203,15 +203,15 @@ if __name__ == "__main__":
 
     # choose optimizer
     if args.optimizer == "sgd":
-        optimizer = optim.SGD(model.parameters(), lr=1e-6, momentum=0.9)
+        optimizer = optim.SGD(model.parameters(), lr=1e-5, momentum=0.9)
     elif args.optimizer == "adam":
-        optimizer = optim.Adam(model.parameters(), lr=1e-6)
+        optimizer = optim.Adam(model.parameters(), lr=1e-5)
     elif args.optimizer == "adamw":
-        optimizer = optim.AdamW(model.parameters(), lr=1e-6)
+        optimizer = optim.AdamW(model.parameters(), lr=1e-5)
     elif args.optimizer == "rmsprop":
-        optimizer = optim.RMSprop(model.parameters(), lr=1e-6)
+        optimizer = optim.RMSprop(model.parameters(), lr=1e-5)
     elif args.optimizer == "adagrad":
-        optimizer = optim.Adagrad(model.parameters(), lr=1e-6)
+        optimizer = optim.Adagrad(model.parameters(), lr=1e-5)
     else:
         raise ValueError(f"Unknown optimizer: {args.optimizer}")
 
