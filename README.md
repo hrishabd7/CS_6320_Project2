@@ -23,7 +23,10 @@ Place your data JSON files in the project root (or pass absolute paths):
 - `validation.json` / `validation_new.json`
 - `test.json`
 
-RNN also expects `word_embedding.pkl` in the project root.
+RNN also expects `word_embedding.pkl` in the project root. If running for word2vec and glove embedding, download the embedding files.
+
+- Word2Vec: https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit?usp=sharing
+- Glove100d: https://nlp.stanford.edu/data/wordvecs/glove.2024.wikigiga.100d.zip
 
 ## Train and Evaluate
 
@@ -68,7 +71,7 @@ python rnn.py -hd 128 -e 8 \
   --do_train
 ```
 
-Example with learning rate and minibatch size:
+Example run that gave the best performance with word_embeddings.pkl
 ```bash
 python rnn.py \
   --hidden_dim 256 \
@@ -81,17 +84,17 @@ python rnn.py \
   --minibatch_size 32
 ```
 
-Optional parameters (if supported by your rnn.py):
+Optional parameters:
 - `--activation {relu,tanh}`: activation function (default: `tanh`).
 - `--bidirectional`: enable a bidirectional RNN.
 - `--last`: use only the last hidden state for classification (no summing across all time steps).
 
 Note: Ensure `word_embedding.pkl` is present in the project root.
 
-### RNN with Word2Vec variant (optional)
-If you are using a Word2Vec-based RNN script (e.g., `rnn_word2vec.py`) that can optionally train embeddings, here are example commands:
+### RNN with Word2Vec/Glove variant
+To run RNN using a Word2Vec/Glove100 embedding, run 'rnn_word2vec.py` that has an option to train embeddings. Below is the example command:
 
-Train the embedding:
+To train the embedding as well (our best setting):
 ```bash
 python rnn_word2vec.py \
   --hidden_dim 256 \
@@ -106,7 +109,7 @@ python rnn_word2vec.py \
   --train_embedding
 ```
 
-Do not train the embedding (use pretrained as-is):
+To not train the embedding (use pretrained as-is):
 ```bash
 python rnn_word2vec.py \
   --hidden_dim 256 \
