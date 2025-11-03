@@ -108,6 +108,7 @@ python rnn_word2vec.py \
   --word_embedding word2vec \
   --train_embedding
 ```
+The trained model is also present at: https://drive.google.com/file/d/1pwJWyS5e2S5EYk3sMMBQ6zdWRjwupNDF/view?usp=sharing
 
 To not train the embedding (use pretrained as-is):
 ```bash
