@@ -139,9 +139,13 @@ Standard library:
   ```bash
   MPLBACKEND=Agg python ffnn.py ...
   ```
-- To be explicit about the venv interpreter:
+- To be explicit about the venv interpreter (ffnn):
   ```bash
-  ./.venv/bin/python ffnn.py -hd 128 -e 10 --train_data training_new.json --val_data validation_new.json --do_train
+  ./.venv/bin/pythonpython ffnn.py -hd 32 -e 50 --train_data training_new.json --val_data validation_new.json --test_data test.json --ckpt_dir runs/exp1 --optimizer adam --activation elu --do_train
+  ```
+- To be explicit about the venv interpreter (rnn):
+  ```bash
+  ./.venv/bin/pythonpython rnn.py -hd 256 -e 40 --train_data data/training_new.json --val_data data/validation_new.json --test_data data/test.json --ckpt_dir runs/rnn1 --lr 1e-5 --minibatch_size 32
   ```
 
 ## Troubleshooting
