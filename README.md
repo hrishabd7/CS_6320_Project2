@@ -56,6 +56,10 @@ Artifacts:
 - Metrics are written to `<ckpt_dir>/metrics.csv` (tab-delimited):
   `epoch\ttrain_loss\ttrain_acc(%)\tval_loss\tval_acc(%)`
 
+trained model can be found in the following link:
+  https://drive.google.com/file/d/1yWwTdAJDD5z0gU2LT3zjXkXNga9FBWVk/view?usp=drive_link
+
+
 ### RNN
 Required args: `--hidden_dim`, `--epochs`, `--train_data`, `--val_data`
 Optional: `--test_data`, `--ckpt_dir`, `--do_train`, `--num_layers`, `--lr`, `--minibatch_size`, `--activation {relu,tanh}`, `--bidirectional`, `--last`
